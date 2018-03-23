@@ -14,6 +14,8 @@ The boundary conditions are handled by special particles that the fluid wont flo
   
 To render the fluid I made a compute shader that fills a 3D texture with the particles densities. That volume can then be ray traced in a shader to render the fluid. Its just a unlit shader however so has no lighting. A method would need to be added to create normals from the volume to add lighting.
 
+Use linear light space for the fluid to look like these images.
+
 ![Fluid raytraced](https://static.wixstatic.com/media/1e04d5_67723414aa4341d9a23c3442b20c9b06~mv2.jpg/v1/fill/w_550,h_355,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_67723414aa4341d9a23c3442b20c9b06~mv2.jpg)
 
 ![Fluid raytraced](https://static.wixstatic.com/media/1e04d5_7882ff89a8c043128cd7475f325fe7df~mv2.jpg/v1/fill/w_550,h_355,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_7882ff89a8c043128cd7475f325fe7df~mv2.jpg)
