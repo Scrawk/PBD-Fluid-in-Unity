@@ -1,0 +1,106 @@
+﻿
+float HashScale;
+float3 HashSize;
+float3 HashTranslate;
+
+RWStructuredBuffer<int2> IndexMap;
+RWStructuredBuffer<int2> Table;
+
+int3 HashIndex(float3 p)
+{
+	p = (p - HashTranslate) * HashScale;
+	return clamp(p, 0, HashSize - 1);
+}
+
+float KernelRadius;
+float KernelRadius2;
+float Poly6;
+
+float Pow3(float v)
+{
+	return v * v * v;
+}
+
+float Poly6Kernel(float len2)
+{
+	return Poly6 * Pow3(KernelRadius2 - len2);
+}
+
+#define THREADS 8
+
+int NumParticles;
+float Density;
+float ParticleVolume;
+StructuredBuffer<float4> Positions;
+StructuredBuffer<float> Densities;
+
+float VolumeScale;
+float3 VolumeSize;
+float3 VolumeTranslate;
+RWTexture3D<float> Volume;
+
+float Distance2(float3 a, float3 b)
+{
+	float3 ab = a - b;
+	return dot(ab, ab);
+}
+
+float Compute(float3 pi)
+{
+	int3 hashIndex = HashIndex(pi);
+	int3 size = HashSize;
+
+	float density = 0;
+
+	for (int k = -1; k <= 1; k++)
+	{
+		for (int j = -1; j <= 1; j++)
+		{
+			for (int i = -1; i <= 1; i++)
+			{
+				int xi = hashIndex.x + i;
+				int yj = hashIndex.y + j;
+				int zk = hashIndex.z + k;
+
+				if (xi < 0 || xi >= size.x) continue;
+				if (yj < 0 || yj >= size.y) continue;
+				if (zk < 0 || zk >= size.z) continue;
+
+				int hash = xi + yj * size.x + zk * size.x * size.y;
+				int2 bounds = Table[hash];
+
+				for (int idx = bounds.x; idx <= bounds.y; idx++)
+				{
+					int n = IndexMap[idx].y;
+					if (n > NumParticles) continue;
+
+					float3 pn = Positions[n].xyz;
+					float dist2 = Distance2(pi, pn);
+					if (dist2 >= KernelRadius2) continue;
+
+					density += Densities[n] * Poly6Kernel(dist2);
+				}
+			}
+		}
+	}
+
+	return density / Density;
+}
+
+#pragma kernel ComputeVolume
+
+[numthreads(THREADS, THREADS, THREADS)]
+void ComputeVolume(int3 id : SV_DispatchThreadID)
+{
+
+	if (id.x < VolumeSize.x && id.y < VolumeSize.y && id.z < VolumeSize.z)
+	{
+		float3 pi = VolumeTranslate + id * VolumeScale;
+
+		float density = Compute(pi);
+
+		Volume[id] = density * ParticleVolume;
+
+	}
+
+}

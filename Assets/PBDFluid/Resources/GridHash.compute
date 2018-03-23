@@ -1,0 +1,72 @@
+﻿
+float HashScale;
+float3 HashSize;
+float3 HashTranslate;
+
+RWStructuredBuffer<int2> IndexMap;
+RWStructuredBuffer<int2> Table;
+
+int Hash(float3 p)
+{
+	p = (p - HashTranslate) * HashScale;
+	int3 i = clamp(p, 0, HashSize - 1);
+
+	return i.x + i.y * HashSize.x + i.z * HashSize.x * HashSize.y;
+}
+
+#define THREADS 128
+
+StructuredBuffer<float4> Particles;
+StructuredBuffer<float4> Boundary;
+
+int NumParticles;
+int TotalParticles;
+
+#pragma kernel HashParticles
+
+[numthreads(THREADS,1,1)]
+void HashParticles(int id : SV_DispatchThreadID)
+{
+	int2 index;
+	index.y = id;
+
+	if (id < NumParticles)
+	{
+		index.x = Hash(Particles[id].xyz);
+		IndexMap[id] = index;
+	}
+	else if (id < TotalParticles)
+	{
+		int k = id - NumParticles;
+		index.x = Hash(Boundary[k].xyz);
+		IndexMap[id] = index;
+	}
+
+}
+
+#pragma kernel ClearTable
+
+[numthreads(THREADS, 1, 1)]
+void ClearTable(int id : SV_DispatchThreadID)
+{
+	if (id < TotalParticles)
+		Table[id] = 0;
+}
+
+#pragma kernel MapTable
+
+[numthreads(THREADS, 1, 1)]
+void MapTable(int id : SV_DispatchThreadID)
+{
+	if (id < TotalParticles)
+	{
+		int hash = IndexMap[id].x;
+
+		if (id == 0 || hash != IndexMap[id - 1].x)
+			Table[hash].x = id;
+
+		if (id == TotalParticles - 1 || hash != IndexMap[id + 1].x)
+			Table[hash].y = id;
+	}
+}
+

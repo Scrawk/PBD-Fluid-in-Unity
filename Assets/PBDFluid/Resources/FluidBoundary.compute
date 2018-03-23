@@ -1,0 +1,109 @@
+﻿
+float HashScale;
+float3 HashSize;
+float3 HashTranslate;
+
+RWStructuredBuffer<int2> IndexMap;
+RWStructuredBuffer<int2> Table;
+
+int3 HashIndex(float3 p)
+{
+	p = (p - HashTranslate) * HashScale;
+	return clamp(p, 0, HashSize - 1);
+}
+
+float KernelRadius;
+float KernelRadius2;
+
+float Poly6Zero;
+float Poly6;
+
+float Pow3(float v)
+{
+	return v * v * v;
+}
+
+float Poly6Kernel(float len2)
+{
+	return Poly6 * Pow3(KernelRadius2 - len2);
+}
+
+#define THREADS 128
+#define PI 3.14159265359
+
+RWStructuredBuffer<float4> Boundary;
+
+float Density;
+int NumParticles;
+
+float Distance2(float3 a, float3 b)
+{
+	float3 ab = a - b;
+	return ab.x*ab.x + ab.y*ab.y + ab.z*ab.z;
+}
+
+float Compute(int id, float3 pi)
+{
+	int3 hashIndex = HashIndex(pi);
+	int3 size = HashSize;
+
+	float delta = Poly6Zero;
+
+	//Fills the boundarys psi array so the fluid can
+	//collide against it smoothly. The original computes
+	//the phi for each boundary particle based on the
+	//density of the boundary but I find the fluid 
+	//leaks out so Im just using a const value.
+
+	/*
+	for (int k = -1; k <= 1; k++)
+	{
+		for (int j = -1; j <= 1; j++)
+		{
+			for (int i = -1; i <= 1; i++)
+			{
+				int xi = hashIndex.x + i;
+				int yj = hashIndex.y + j;
+				int zk = hashIndex.z + k;
+
+				if (xi < 0 || xi >= size.x) continue;
+				if (yj < 0 || yj >= size.y) continue;
+				if (zk < 0 || zk >= size.z) continue;
+
+				int hash = xi + yj * size.x + zk * size.x * size.y;
+				int2 bounds = Table[hash];
+
+				for (int idx = bounds.x; idx <= bounds.y; idx++)
+				{
+					int n = IndexMap[idx].y;
+					if (n == id) continue;
+
+					float3 pn = Boundary[n].xyz;
+					float dist2 = Distance2(pi, pn);
+					if (dist2 >= KernelRadius2) continue;
+
+					delta += Poly6Kernel(dist2);
+				}
+			}
+		}
+	}
+	*/
+
+	float volume = 1.0f / delta;
+	return Density * volume;
+}
+
+#pragma kernel ComputePsi
+[numthreads(THREADS,1,1)]
+void ComputePsi(int id : SV_DispatchThreadID)
+{
+
+	if (id < NumParticles)
+	{
+		float3 pi = Boundary[id].xyz;
+		float psi = Compute(id, pi);
+
+		Boundary[id].w = psi;
+	}
+
+}

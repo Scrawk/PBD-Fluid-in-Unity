@@ -1,0 +1,66 @@
+﻿
+#define THREADS 128
+
+#define BITONIC_BLOCK_SIZE 512
+#define TRANSPOSE_BLOCK_SIZE 16
+
+int Level;
+int LevelMask;
+int Width;
+int Height;
+
+RWStructuredBuffer<int2> Data;
+StructuredBuffer<int2> Input;
+
+groupshared int2 shared_data[BITONIC_BLOCK_SIZE];
+groupshared int2 transpose_shared_data[TRANSPOSE_BLOCK_SIZE * TRANSPOSE_BLOCK_SIZE];
+
+#pragma kernel BitonicSort
+[numthreads(BITONIC_BLOCK_SIZE, 1, 1)]
+void BitonicSort(int3 Gid : SV_GroupID, int3 DTid : SV_DispatchThreadID, int3 GTid : SV_GroupThreadID, int GI : SV_GroupIndex)
+{
+
+	// Load shared data
+	shared_data[GI] = Data[DTid.x];
+	GroupMemoryBarrierWithGroupSync();
+
+	// Sort the shared data
+	for (int j = Level >> 1; j > 0; j >>= 1)
+	{
+		int2 result = ((shared_data[GI & ~j].x <= shared_data[GI | j].x) == (bool)(LevelMask & DTid.x)) ? shared_data[GI ^ j] : shared_data[GI];
+		GroupMemoryBarrierWithGroupSync();
+		shared_data[GI] = result;
+		GroupMemoryBarrierWithGroupSync();
+	}
+
+	// Store shared data
+	Data[DTid.x] = shared_data[GI];
+}
+
+#pragma kernel MatrixTranspose
+[numthreads(TRANSPOSE_BLOCK_SIZE, TRANSPOSE_BLOCK_SIZE, 1)]
+void MatrixTranspose(int3 Gid : SV_GroupID, int3 DTid : SV_DispatchThreadID, int3 GTid : SV_GroupThreadID, int GI : SV_GroupIndex)
+{
+	transpose_shared_data[GI] = Input[DTid.y * Width + DTid.x];
+	GroupMemoryBarrierWithGroupSync();
+	int2 XY = DTid.yx - GTid.yx + GTid.xy;
+	Data[XY.y * Height + XY.x] = transpose_shared_data[GTid.x * TRANSPOSE_BLOCK_SIZE + GTid.y];
+}
+
+#pragma kernel Fill
+[numthreads(THREADS, 1, 1)]
+void Fill(int DTid : SV_DispatchThreadID)
+{
+	if (DTid < Width)
+		Data[DTid] = Input[DTid];
+	else
+		Data[DTid] = 0x7FFFFFFF;
+}
+
+#pragma kernel Copy
+[numthreads(THREADS, 1, 1)]
+void Copy(int DTid : SV_DispatchThreadID)
+{
+	if (DTid < Width)
+		Data[DTid] = Input[DTid];
+}
