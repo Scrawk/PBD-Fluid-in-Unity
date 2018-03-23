@@ -8,7 +8,7 @@ Its certainly not the fastest particle fluid around but can simulate 70K fluid p
 
 ![Fluid particles](https://static.wixstatic.com/media/1e04d5_50a7e2f602a04013b9371f61bd1354bc~mv2.jpg/v1/fill/w_550,h_351,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_50a7e2f602a04013b9371f61bd1354bc~mv2.jpg)
  
-The boundary conditions are handled by special particles that the fluid wont flow through. These are then added around the border. This does make it more costly than other methods but it also allows objects in the scene to interact with the fluid more easily. All you need is a method to [voxlize](https://www.digital-dust.com/single-post/2017/04/17/Mesh-voxelization-in-Unity) a mesh to particles and the fluid will flow around it using the same method.  
+The boundary conditions are handled by special particles that the fluid wont flow through. These are then added around the border. This does make it more costly than other methods but it also allows objects in the scene to interact with the fluid more easily. All you need is a method to [voxlize a mesh](https://www.digital-dust.com/single-post/2017/04/17/Mesh-voxelization-in-Unity) to particles and the fluid will flow around it using the same method.  
  
 ![Fluid boundary](https://static.wixstatic.com/media/1e04d5_c824c6371b6d428ebcf3637557786685~mv2.jpg/v1/fill/w_550,h_351,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_c824c6371b6d428ebcf3637557786685~mv2.jpg)
   
