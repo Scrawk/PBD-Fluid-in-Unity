@@ -203,8 +203,14 @@ void ComputeDensityAndPressure(int id, float3 pi, out float density, out float p
 		// C > 0 for 60% - 65% of particles
 		sum_grad_C2 += Length2(gradC_i);
 	
-		float eps = 1e-6f;
-		pressure = -C / (sum_grad_C2 + eps);
+		//If the fluid is collapsing you need to adjust e.
+		//Its a user specified relaxation parameter that 
+		//needs to be added to stabilze the pressure
+		//due to a vanishing gradient at the smoothing 
+		//kernel borders. The value may need to increase
+		//as the number of particles increase.
+		float e = 60.0f;
+		pressure = -C / (sum_grad_C2 + e);
 	}
 
 }
