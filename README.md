@@ -1,6 +1,6 @@
 This is a position based dynamics particle fluid simulation running in Unity on the GPU. It uses the same math from the previous [PBD project](https://www.digital-dust.com/single-post/2017/04/09/Position-based-dynamics-in-Unity) but adapted some what to run on the GPU.
 
-See [home page](https://www.digital-dust.com/single-post/2018/03/23/PBD-Fluid-in-Unity) for Unity package download.
+You can download a Unity package [here](https://app.box.com/s/jtupu3rz8ryezz7sxhtim0hq7e2g88ax).
 
 The biggest difference is how finding the neighbouring particles is handled. This is more complicated on the GPU and I went with a grid hash using a Bitonic sort. Other sorting method are around (like Radix sort) and maybe faster but the Bitonic sort was simpler and works quite well. Profiling shows its not the bottle neck so a faster sort may not see much performance gain.
 
