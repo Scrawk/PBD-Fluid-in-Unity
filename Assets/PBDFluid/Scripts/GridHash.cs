@@ -120,6 +120,7 @@ namespace PBDFluid
             m_shader.SetVector("HashTranslate", Bounds.min);
 
             m_shader.SetBuffer(m_hashKernel, "Particles", particles);
+            m_shader.SetBuffer(m_hashKernel, "Boundary", particles); //unity 2018 complains if boundary not set in kernel
             m_shader.SetBuffer(m_hashKernel, "IndexMap", IndexMap);
 
             //Assign the particles hash to x and index to y.
