@@ -54,11 +54,11 @@ namespace PBDFluid
 				move = new Vector3(0,0,-1) * deltaTime * speed;
 			
 			//move up
-			if(Input.GetKey(KeyCode.E))
+			if(Input.GetKey(KeyCode.Q))
 				move = new Vector3(0,-1,0) * deltaTime * speed;
 			
 			//move down
-			if(Input.GetKey(KeyCode.Q))
+			if(Input.GetKey(KeyCode.E))
 				move = new Vector3(0,1,0) * deltaTime * speed;
 
 

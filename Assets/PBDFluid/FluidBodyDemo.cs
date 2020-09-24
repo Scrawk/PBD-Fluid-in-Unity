@@ -152,7 +152,7 @@ namespace PBDFluid
 
             //Make the boundary 1 particle thick.
             //The multiple by 1.2 adds a little of extra
-            //thickness incase the radius does not evenly
+            //thickness in case the radius does not evenly
             //divide into the bounds size. You might have
             //particles missing from one side of the source
             //bounds other wise.
