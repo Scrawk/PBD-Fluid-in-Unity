@@ -3,3 +3,7 @@
 ################################################################################
 
 /Library
+/Temp
+/obj/Debug
+/Logs
+/.vs/PBD-Fluid-in-Unity/v16/TestStore/0
