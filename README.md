@@ -4,24 +4,24 @@ The biggest difference is how finding the neighbouring particles is handled. Thi
 
 Its certainly not the fastest particle fluid around but can simulate 70K fluid particles and 30K boundary particles at 30fps on a GTX980 which is not too bad.
 
-![Fluid particles](https://static.wixstatic.com/media/1e04d5_50a7e2f602a04013b9371f61bd1354bc~mv2.jpg/v1/fill/w_550,h_351,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_50a7e2f602a04013b9371f61bd1354bc~mv2.jpg)
+![Fluid particles](./Media/PBDFluid1.jpg)
  
 The boundary conditions are handled by special particles that the fluid wont flow through. These are then added around the border. This does make it more costly than other methods but it also allows objects in the scene to interact with the fluid more easily. All you need is a method to [voxlize a mesh](https://github.com/Scrawk/Mesh-Voxelization) to particles and you can then add them to the boundary.
 
-![Fluid boundary](https://static.wixstatic.com/media/1e04d5_c824c6371b6d428ebcf3637557786685~mv2.jpg/v1/fill/w_550,h_351,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_c824c6371b6d428ebcf3637557786685~mv2.jpg)
+![Fluid boundary](./Media/PBDFluid2.jpg)
   
 To render the fluid I made a compute shader that fills a 3D texture with the particles densities. That volume can then be ray traced in a shader to render the fluid. Its just a unlit shader however so has no lighting. A method needs to be added to create normals from the volume to add lighting.
 
 You need to use linear light space for the fluid to look like these images.
 
-![Fluid raytraced](https://static.wixstatic.com/media/1e04d5_67723414aa4341d9a23c3442b20c9b06~mv2.jpg/v1/fill/w_550,h_355,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_67723414aa4341d9a23c3442b20c9b06~mv2.jpg)
+![Fluid raytraced](./Media/PBDFluid3.jpg)
 
-![Fluid raytraced](https://static.wixstatic.com/media/1e04d5_7882ff89a8c043128cd7475f325fe7df~mv2.jpg/v1/fill/w_550,h_355,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_7882ff89a8c043128cd7475f325fe7df~mv2.jpg)
+![Fluid raytraced](./Media/PBDFluid4.jpg)
 
-![Fluid raytraced](https://static.wixstatic.com/media/1e04d5_b142c33546ec4fa1a748de56f3b51292~mv2.jpg/v1/fill/w_550,h_355,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_b142c33546ec4fa1a748de56f3b51292~mv2.jpg)
+![Fluid raytraced](./Media/PBDFluid5.jpg)
 
-![Fluid raytraced](https://static.wixstatic.com/media/1e04d5_f0473e456c944033b3c214a4a57144d8~mv2.jpg/v1/fill/w_550,h_355,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_f0473e456c944033b3c214a4a57144d8~mv2.jpg)
+![Fluid raytraced](./Media/PBDFluid6.jpg)
 
-![Fluid raytraced](https://static.wixstatic.com/media/1e04d5_3641705abb6541ebb3844f8ad767d4d3~mv2.jpg/v1/fill/w_550,h_355,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_3641705abb6541ebb3844f8ad767d4d3~mv2.jpg)
+![Fluid raytraced](./Media/PBDFluid7.jpg)
 
-![Fluid raytraced](https://static.wixstatic.com/media/1e04d5_d64b6442d483498f9da713cd9a98ab22~mv2.jpg/v1/fill/w_550,h_355,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_d64b6442d483498f9da713cd9a98ab22~mv2.jpg)
+![Fluid raytraced](./Media/PBDFluid8.jpg)
