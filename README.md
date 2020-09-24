@@ -1,6 +1,4 @@
-This is a position based dynamics particle fluid simulation running in Unity on the GPU. It uses the same math from the previous [PBD project](https://www.digital-dust.com/single-post/2017/04/09/Position-based-dynamics-in-Unity) but adapted some what to run on the GPU.
-
-You can download a Unity package [here](https://app.box.com/s/jtupu3rz8ryezz7sxhtim0hq7e2g88ax).
+This is a position based dynamics particle fluid simulation running in Unity on the GPU. It uses the same math from the previous [PBD project](https://github.com/Scrawk/Position-Based-Dynamics) but adapted some what to run on the GPU.
 
 The biggest difference is how finding the neighbouring particles is handled. This is more complicated on the GPU and I went with a grid hash using a Bitonic sort. Other sorting method are around (like Radix sort) and maybe faster but the Bitonic sort was simpler and works quite well. Profiling shows its not the bottle neck so a faster sort may not see much performance gain.
 
@@ -8,7 +6,7 @@ Its certainly not the fastest particle fluid around but can simulate 70K fluid p
 
 ![Fluid particles](https://static.wixstatic.com/media/1e04d5_50a7e2f602a04013b9371f61bd1354bc~mv2.jpg/v1/fill/w_550,h_351,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_50a7e2f602a04013b9371f61bd1354bc~mv2.jpg)
  
-The boundary conditions are handled by special particles that the fluid wont flow through. These are then added around the border. This does make it more costly than other methods but it also allows objects in the scene to interact with the fluid more easily. All you need is a method to [voxlize a mesh](https://www.digital-dust.com/single-post/2017/04/17/Mesh-voxelization-in-Unity) to particles and you can then add them to the boundary.
+The boundary conditions are handled by special particles that the fluid wont flow through. These are then added around the border. This does make it more costly than other methods but it also allows objects in the scene to interact with the fluid more easily. All you need is a method to [voxlize a mesh](https://github.com/Scrawk/Mesh-Voxelization) to particles and you can then add them to the boundary.
 
 ![Fluid boundary](https://static.wixstatic.com/media/1e04d5_c824c6371b6d428ebcf3637557786685~mv2.jpg/v1/fill/w_550,h_351,al_c,q_80,usm_0.66_1.00_0.01/1e04d5_c824c6371b6d428ebcf3637557786685~mv2.jpg)
   
