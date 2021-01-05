@@ -747,7 +747,7 @@ MonoBehaviour:
   m_boundaryParticleMat: {fileID: 2100000, guid: 257742b1fedac2f4791369b571260722,
     type: 2}
   m_volumeMat: {fileID: 2100000, guid: 32d2cd031f252b04b88a55d7d051391d, type: 2}
-  m_drawLines: 0
+  m_drawLines: 1
   m_drawGrid: 0
   m_drawBoundaryParticles: 0
   m_drawFluidParticles: 0
