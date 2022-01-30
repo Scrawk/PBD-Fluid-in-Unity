@@ -25,3 +25,11 @@ You need to use linear light space for the fluid to look like these images.
 ![Fluid raytraced](./Media/PBDFluid7.jpg)
 
 ![Fluid raytraced](./Media/PBDFluid8.jpg)
+
+List of water projects.
+
+[Ceto](https://github.com/Scrawk/Ceto)\
+[Phillips ocean.](https://github.com/Scrawk/Phillips-Ocean)\
+[Brunetons Ocean.](https://github.com/Scrawk/Brunetons-Ocean)\
+[Tiled-directional flow.](https://github.com/Scrawk/Tiled-Directional-Flow)\
+[PBD Fluid sim.](https://github.com/Scrawk/PBD-Fluid-in-Unity)
