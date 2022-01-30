@@ -33,3 +33,12 @@ List of water projects.
 [Brunetons Ocean.](https://github.com/Scrawk/Brunetons-Ocean)\
 [Tiled-directional flow.](https://github.com/Scrawk/Tiled-Directional-Flow)\
 [PBD Fluid sim.](https://github.com/Scrawk/PBD-Fluid-in-Unity)
+
+List of physics projects
+
+[Position-Based-Dynamics](https://github.com/Scrawk/Position-Based-Dynamics)\
+[PBD-Fluid-in-Unity](https://github.com/Scrawk/PBD-Fluid-in-Unity)\
+[PU-GEMS-NBody-Simulation](https://github.com/Scrawk/GPU-GEMS-NBody-Simulation)\
+[GPU-GEMS-2D-Fluid-Simulation](https://github.com/Scrawk/GPU-GEMS-2D-Fluid-Simulation)\
+[CyclonePhysicsEngine](https://github.com/Scrawk/CyclonePhysicsEngine)\
+[2D-Deformable-body-in-Unity](https://github.com/Scrawk/2D-Deformable-body-in-Unity)
