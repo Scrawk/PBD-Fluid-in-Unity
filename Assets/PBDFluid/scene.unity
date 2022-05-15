@@ -434,7 +434,7 @@ LightingSettings:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: Settings.lighting
-  serializedVersion: 2
+  serializedVersion: 3
   m_GIWorkflowMode: 0
   m_EnableBakedLightmaps: 1
   m_EnableRealtimeLightmaps: 1
@@ -456,7 +456,7 @@ LightingSettings:
   m_MixedBakeMode: 2
   m_LightmapsBakeMode: 1
   m_FilterMode: 1
-  m_LightmapParameters: {fileID: 0}
+  m_LightmapParameters: {fileID: 15204, guid: 0000000000000000f000000000000000, type: 0}
   m_ExportTrainingData: 0
   m_TrainingDataDestination: TrainingData
   m_RealtimeResolution: 2
@@ -473,7 +473,7 @@ LightingSettings:
   m_PVREnvironmentReferencePointCount: 2048
   m_LightProbeSampleCountMultiplier: 4
   m_PVRBounces: 2
-  m_PVRRussianRouletteStartBounce: 2
+  m_PVRMinBounces: 1
   m_PVREnvironmentMIS: 0
   m_PVRFilteringMode: 2
   m_PVRDenoiserTypeDirect: 0
@@ -750,9 +750,9 @@ MonoBehaviour:
   m_drawLines: 1
   m_drawGrid: 0
   m_drawBoundaryParticles: 0
-  m_drawFluidParticles: 0
+  m_drawFluidParticles: 1
   m_drawFluidVolume: 1
-  m_simulationSize: 1
+  m_simulationSize: 0
   m_run: 1
   m_sphereMesh: {fileID: 4300000, guid: 823956ce1b683574ca519f1f470eb81d, type: 3}
 --- !u!4 &1665818424
@@ -845,6 +845,7 @@ Light:
   m_UseColorTemperature: 0
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
+  m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
 --- !u!4 &1912525514

@@ -37,13 +37,13 @@ namespace PBDFluid
         /// <summary>
         /// Draws the mesh spheres when draw particles is enabled.
         /// </summary>
-        public void Draw(Camera cam, Mesh mesh, Material material, int layer)
+        public void Draw(Camera cam, Mesh mesh, Material material, int layer, Color color)
         {
             if (m_argsBuffer == null)
                 CreateArgBuffer(mesh.GetIndexCount(0));
 
             material.SetBuffer("positions", Positions);
-            material.SetColor("color", Color.red);
+            material.SetColor("color", color);
             material.SetFloat("diameter", ParticleDiameter);
 
             ShadowCastingMode castShadow = ShadowCastingMode.Off;
