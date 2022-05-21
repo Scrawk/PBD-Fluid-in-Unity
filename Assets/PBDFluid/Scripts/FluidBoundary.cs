@@ -24,16 +24,21 @@ namespace PBDFluid
 
         private ComputeBuffer m_argsBuffer;
 
+        private ParticleSource source;
+        private Matrix4x4 RTS;
+
         public FluidBoundary(ParticleSource source, float radius, float density, Matrix4x4 RTS)
         {
+            this.source = source;
+            this.RTS = RTS;
             NumParticles = source.NumParticles;
             ParticleRadius = radius;
             Density = density;
 
-            CreateParticles(source, RTS);
+            CreateParticles();
             CreateBoundryPsi();
         }
-
+        
         /// <summary>
         /// Draws the mesh spheres when draw particles is enabled.
         /// </summary>
@@ -64,7 +69,7 @@ namespace PBDFluid
 
         }
 
-        private void CreateParticles(ParticleSource source, Matrix4x4 RTS)
+        private void CreateParticles()
         {
             Vector4[] positions = new Vector4[NumParticles];
 

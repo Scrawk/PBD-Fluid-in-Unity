@@ -8,19 +8,10 @@ namespace PBDFluid
 
     public enum SIMULATION_SIZE {  LOW, MEDIUM, HIGH }
 
-    [System.Serializable]
-    public struct BoundaryInfo{
-        [SerializeField]
-        public Vector3 center;
-        [SerializeField]
-        public Vector3 size;
-    }
-
     public class FluidBodyDemo : MonoBehaviour
     {
         public Camera m_mainCamera;
-        [SerializeField]
-        private Vector3 outerContainerSize = new Vector3(20,10,4);
+        public Bounds outerContainer;
         [Header("Fluid")]
         [SerializeField]
         private Vector3 fluidBoxSize = new Vector3(3,3,3);
@@ -29,7 +20,7 @@ namespace PBDFluid
         private float radius = 0.01f;
         private float density;
         [SerializeField]
-        public List<BoundaryInfo> boundaryInfos = new List<BoundaryInfo>();
+        public List<Bounds> boundaryInfos = new List<Bounds>();
         private const float timeStep = 1.0f / 60.0f;
         private bool m_hasStarted = false;
         [Header("Materials")]
@@ -169,11 +160,11 @@ namespace PBDFluid
             }
         }
 
-        private (Bounds,Bounds) CreateBoundary(BoundaryInfo info)
+        private (Bounds,Bounds) CreateBoundary(Bounds bounds)
         {
             Bounds outerBounds = new Bounds();
-            var center = transform.position + info.center;
-            var size = info.size;
+            var center = transform.position + bounds.center;
+            var size = bounds.size;
             outerBounds.SetMinMax(center-(size/2.0f), center+(size/2.0f));
                 
             //Make the boundary 1 particle thick.
@@ -198,14 +189,11 @@ namespace PBDFluid
         private void CreateBoundaries()
         {
             ParticlesFromSeveralBounds particleSource = new ParticlesFromSeveralBounds(radius * 2);
-            BoundaryInfo outerContainer;
-            outerContainer.center = new Vector3(0, 0, 0);
-            outerContainer.size = outerContainerSize;
             var (outerBounds, innerBounds) = CreateBoundary(outerContainer);
             particleSource.AddBounds(outerBounds,innerBounds);
-            foreach (BoundaryInfo boundaryInfo in boundaryInfos)
+            foreach (Bounds bounds in boundaryInfos)
             {
-                (outerBounds, innerBounds) = CreateBoundary(boundaryInfo);
+                (outerBounds, innerBounds) = CreateBoundary(bounds);
                 particleSource.AddBounds(outerBounds,innerBounds);
             }
             particleSource.CreateParticles();
@@ -266,7 +254,7 @@ namespace PBDFluid
         private void OnDrawGizmos() {
             //Outer Container
             Gizmos.color = Color.green;
-            Gizmos.DrawWireCube(transform.position,outerContainerSize);
+            Gizmos.DrawWireCube(transform.position,outerContainer.size);
             
             //Inner Container
             switch(m_simulationSize)
@@ -285,7 +273,7 @@ namespace PBDFluid
             }
             float thickness = 1;
             float diameter = radius * 2;
-            Vector3 size = outerContainerSize;
+            Vector3 size = outerContainer.size;
             size.x -= diameter * thickness * 1.2f;
             size.y -= diameter * thickness * 1.2f;
             size.z -= diameter * thickness * 1.2f;
@@ -296,13 +284,13 @@ namespace PBDFluid
             Gizmos.DrawWireCube(transform.position+fluidBoxCenter,fluidBoxSize);
             Gizmos.color = Color.green;
             //Extra Boundaries
-            foreach (BoundaryInfo boundaryInfo in boundaryInfos){
-                Gizmos.DrawWireCube(transform.position+boundaryInfo.center,boundaryInfo.size);
-                Vector3 newsize = boundaryInfo.size;
+            foreach (Bounds bounds in boundaryInfos){
+                Gizmos.DrawWireCube(transform.position+bounds.center,bounds.size);
+                Vector3 newsize = bounds.size;
                 newsize.x -= diameter * thickness * 1.2f;
                 newsize.y -= diameter * thickness * 1.2f;
                 newsize.z -= diameter * thickness * 1.2f;
-                Gizmos.DrawWireCube(transform.position+boundaryInfo.center,newsize);
+                Gizmos.DrawWireCube(transform.position+bounds.center,newsize);
             }
         }
 
