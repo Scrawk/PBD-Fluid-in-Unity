@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using UnityEngine.Assertions;
 
 namespace PBDFluid
 {
@@ -37,10 +39,7 @@ namespace PBDFluid
             Boundaries = boundaries;
 
             float cellSize = Body.ParticleRadius * 4.0f;
-            int total = Body.NumParticles;
-            for (int i=0; i<boundaries.Count; i++){
-                total += boundaries[i].NumParticles;
-            }
+            int total = Body.NumParticles + boundaries.Sum(t => t.NumParticles);
             Hash = new GridHash(Boundaries[0].Bounds, total, cellSize);
             Kernel = new SmoothingKernel(cellSize);
 
@@ -49,21 +48,6 @@ namespace PBDFluid
             if (numParticles % THREADS != 0) Groups++;
 
             m_shader = Resources.Load("FluidSolver") as ComputeShader;
-
-        }
-
-        private ComputeBuffer getAllBoundaryPositionsBuffer(){
-            int totalParticles = 0;
-            List<Vector4> particlesList = new List<Vector4>();
-            for (int boundaryIdx = 0; boundaryIdx<Boundaries.Count; boundaryIdx++){
-                totalParticles += Boundaries[boundaryIdx].NumParticles;
-                Vector4[] data = new Vector4[Boundaries[boundaryIdx].NumParticles];
-                Boundaries[boundaryIdx].Positions.GetData(data);
-                particlesList.AddRange(data);
-            }
-            ComputeBuffer buffer = new ComputeBuffer(totalParticles, 4 * sizeof(float));
-            buffer.SetData(particlesList.ToArray());
-            return buffer;
         }
 
         public void Dispose()
@@ -71,9 +55,7 @@ namespace PBDFluid
             Hash.Dispose();
         }
 
-        public void StepPhysics(float dt, Vector3 pos)
-        {
-
+        public void StepPhysics(float dt){
             if (dt <= 0.0) return;
             if (SolverIterations <= 0 || ConstraintIterations <= 0) return;
 
@@ -96,7 +78,7 @@ namespace PBDFluid
 
             m_shader.SetFloat("HashScale", Hash.InvCellSize);
             m_shader.SetVector("HashSize", Hash.Bounds.size);
-            m_shader.SetVector("HashTranslate", pos + Hash.Bounds.min);
+            m_shader.SetVector("HashTranslate", Hash.Bounds.min);
 
             //Predicted and velocities use a double buffer as solver step
             //needs to read from many locations of buffer and write the result
@@ -106,14 +88,12 @@ namespace PBDFluid
             for (int i = 0; i < SolverIterations; i++)
             {
                 PredictPositions(dt);
-
-                Hash.Process(Body.Predicted[READ], Boundaries);
+                Hash.Process(Body.Predicted[READ], Boundaries[0].Positions);
                 ConstrainPositions();
                 UpdateVelocities(dt);
                 SolveViscosity();
                 UpdatePositions();
             }
-  
         }
 
         private void PredictPositions(float dt)
@@ -131,21 +111,18 @@ namespace PBDFluid
             Swap(Body.Velocities);
         }
 
-        public void ConstrainPositions()
-        {
-            ComputeBuffer positions = getAllBoundaryPositionsBuffer();
-
+        public void ConstrainPositions(){
             int computeKernel = m_shader.FindKernel("ComputeDensity");
             int solveKernel = m_shader.FindKernel("SolveConstraint");
 
             m_shader.SetBuffer(computeKernel, "Densities", Body.Densities);
             m_shader.SetBuffer(computeKernel, "Pressures", Body.Pressures);
-            m_shader.SetBuffer(computeKernel, "Boundary", positions);
+            m_shader.SetBuffer(computeKernel, "Boundary", Boundaries[0].Positions);
             m_shader.SetBuffer(computeKernel, "IndexMap", Hash.IndexMap);
             m_shader.SetBuffer(computeKernel, "Table", Hash.Table);
 
             m_shader.SetBuffer(solveKernel, "Pressures", Body.Pressures);
-            m_shader.SetBuffer(solveKernel, "Boundary", positions);
+            m_shader.SetBuffer(solveKernel, "Boundary", Boundaries[0].Positions);
             m_shader.SetBuffer(solveKernel, "IndexMap", Hash.IndexMap);
             m_shader.SetBuffer(solveKernel, "Table", Hash.Table);
 
@@ -176,11 +153,10 @@ namespace PBDFluid
 
         private void SolveViscosity()
         {    
-            ComputeBuffer positions = getAllBoundaryPositionsBuffer();
             int kernel = m_shader.FindKernel("SolveViscosity");
 
             m_shader.SetBuffer(kernel, "Densities", Body.Densities);
-            m_shader.SetBuffer(kernel, "Boundary", positions);
+            m_shader.SetBuffer(kernel, "Boundary", Boundaries[0].Positions);
             m_shader.SetBuffer(kernel, "IndexMap", Hash.IndexMap);
             m_shader.SetBuffer(kernel, "Table", Hash.Table);
 
