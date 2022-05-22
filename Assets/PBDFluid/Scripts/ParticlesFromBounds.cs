@@ -27,7 +27,7 @@ namespace PBDFluid
             CreateParticles();
         }
 
-        private void CreateParticles()
+        public override void CreateParticles()
         {
 
             int numX = (int)((Bounds.size.x + HalfSpacing) / Spacing);

@@ -16,6 +16,8 @@ namespace PBDFluid
 
         public float HalfSpacing {  get { return Spacing * 0.5f; } }
 
+        public abstract void CreateParticles();
+
         public ParticleSource(float spacing)
         {
             Spacing = spacing;

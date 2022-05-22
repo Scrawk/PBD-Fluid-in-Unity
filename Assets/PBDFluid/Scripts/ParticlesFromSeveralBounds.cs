@@ -25,7 +25,7 @@ namespace PBDFluid
            Exclusion.Add(exclusion);
         }
 
-        public void CreateParticles()
+        public override void CreateParticles()
         {
             Positions = new List<Vector3>();
             for (int i=0; i<BoundsList.Count; i++)
