@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Assertions;
 using UnityEngine.Rendering;
 
 namespace PBDFluid
@@ -35,6 +36,14 @@ namespace PBDFluid
             ParticleRadius = radius;
             Density = density;
 
+            CreateParticles();
+            CreateBoundryPsi();
+        }
+
+        public void UpdatePositions()
+        {
+            source.UpdateBounds();
+            NumParticles = source.NumParticles;
             CreateParticles();
             CreateBoundryPsi();
         }
@@ -79,7 +88,16 @@ namespace PBDFluid
 
             for (int i = 0; i < NumParticles; i++)
             {
-                Vector4 pos = RTS * source.Positions[i];
+                Vector4 pos;
+                try
+                {
+                    pos = RTS * source.Positions[i];
+                }
+                catch
+                {
+                    throw new Exception($"Oh No! NumParticles {NumParticles}, actual List size: {source.Positions.Count}, i:{i}");
+                }
+                
                 positions[i] = pos;
 
                 if (pos.x < min.x) min.x = pos.x;

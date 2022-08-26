@@ -49,12 +49,13 @@
      <Compile Include="Assets/PBDFluid/Scripts/FluidSolver.cs" />
      <Compile Include="Assets/PBDFluid/Scripts/CBUtility.cs" />
      <Compile Include="Assets/PBDFluid/Scripts/ParticlesFromBounds.cs" />
+     <Compile Include="Assets/Scripts/OnChangedCallAtrribute.cs" />
+     <Compile Include="Assets/PBDFluid/Scripts/ParticlesFromSeveralBounds.cs" />
      <Compile Include="Assets/PBDFluid/Scripts/SmoothingKernel.cs" />
      <Compile Include="Assets/PBDFluid/Scripts/ParticleSource.cs" />
      <Compile Include="Assets/PBDFluid/Scripts/BitonicSort.cs" />
      <Compile Include="Assets/PBDFluid/Scripts/DrawLines.cs" />
      <Compile Include="Assets/PBDFluid/Scripts/FreeCam.cs" />
-     <Compile Include="Assets/PBDFluid/Scripts/ParticlesFromSeveralBounds.cs" />
      <None Include="Assets/Resources/BillingMode.json" />
      <None Include="Assets/PBDFluid/Resources/BitonicSort.compute" />
      <None Include="Assets/PBDFluid/Resources/GridHash.compute" />

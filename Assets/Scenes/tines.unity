@@ -594,27 +594,30 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_mainCamera: {fileID: 212800969}
-  outerContainerSize: {x: 10, y: 10, z: 10}
-  fluidBoxSize: {x: 3, y: 3, z: 3}
-  fluidBoxCenter: {x: 1, y: 1, z: 1}
+  outerContainer:
+    m_Center: {x: 0, y: 0, z: 0}
+    m_Extent: {x: 5, y: 5, z: 5}
+  fluidBounds:
+    m_Center: {x: 0, y: 3.47, z: 0}
+    m_Extent: {x: 1, y: 1, z: 1}
   boundaryInfos:
-  - center: {x: 0, y: 0, z: 0}
-    size: {x: 9, y: 9, z: 6}
+  - m_Center: {x: -1.85, y: -3.01, z: 0}
+    m_Extent: {x: 1.48, y: 1.9, z: 3}
+  - m_Center: {x: 2.15, y: -0.82, z: 0}
+    m_Extent: {x: 1.53, y: 1.99, z: 3}
   m_fluidParticleMat: {fileID: 2100000, guid: 12d189c057effd74eb9f43721b3ed217, type: 2}
   m_boundaryParticleMat: {fileID: 2100000, guid: 257742b1fedac2f4791369b571260722,
     type: 2}
   m_volumeMat: {fileID: 2100000, guid: 32d2cd031f252b04b88a55d7d051391d, type: 2}
   m_drawLines: 1
   m_drawGrid: 0
-  m_drawBoundaryParticles: 1
-  m_createInnerCup: 0
+  m_drawBoundaryParticles: 0
   m_drawFluidParticles: 0
   m_drawFluidVolume: 1
+  m_updateBoundaryPositions: 0
   m_simulationSize: 0
   m_run: 1
   m_sphereMesh: {fileID: 4300000, guid: 035ddedac6fb3ba44a88087d6ccc4f98, type: 3}
-  wallPos: {x: 1.53, y: -0.06, z: -1.88}
-  wallSize: {x: 5, y: 5, z: 3}
 --- !u!1 &2127149209
 GameObject:
   m_ObjectHideFlags: 0

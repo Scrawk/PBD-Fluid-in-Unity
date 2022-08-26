@@ -18,6 +18,8 @@ namespace PBDFluid
 
         public abstract void CreateParticles();
 
+        public abstract void UpdateBounds();
+
         public ParticleSource(float spacing)
         {
             Spacing = spacing;

@@ -42,7 +42,7 @@ public class OnChangedCallAttributePropertyDrawer : PropertyDrawer
     public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
     {
         EditorGUI.BeginChangeCheck();
-        EditorGUI.PropertyField(position, property);
+        EditorGUI.PropertyField(position, property, label);
         if (EditorGUI.EndChangeCheck())
         {
             OnChangedCallAttribute at = attribute as OnChangedCallAttribute;

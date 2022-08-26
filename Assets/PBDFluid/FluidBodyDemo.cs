@@ -10,33 +10,35 @@ namespace PBDFluid
 
     public class FluidBodyDemo : MonoBehaviour
     {
+        //Constants
+        private const float timeStep = 1.0f / 60.0f;
+        
+        //Serialized Fields
         public Camera m_mainCamera;
         public Bounds outerContainer;
-        [Header("Fluid")]
-        [SerializeField]
-        private Vector3 fluidBoxSize = new Vector3(3,3,3);
-        [SerializeField]
-        private Vector3 fluidBoxCenter = new Vector3(3,3,3);
-        private float radius = 0.01f;
-        private float density;
-        [SerializeField]
+        public Bounds fluidBounds;
         public List<Bounds> boundaryInfos = new List<Bounds>();
-        private const float timeStep = 1.0f / 60.0f;
-        private bool m_hasStarted = false;
+
         [Header("Materials")]
         public Material m_fluidParticleMat;
         public Material m_boundaryParticleMat;
         public Material m_volumeMat;
+
         [Header("Render Booleans")]
         public bool m_drawLines = true;
         public bool m_drawGrid = false;
         public bool m_drawBoundaryParticles = false;
-        public bool m_createInnerCup = false;
         public bool m_drawFluidParticles = false;
         public bool m_drawFluidVolume = true;
+        public bool m_updateBoundaryPositions = false;
 
         [Header("Simulation Settings")]
         public SIMULATION_SIZE m_simulationSize = SIMULATION_SIZE.MEDIUM;
+
+        private float radius = 0.01f;
+        private float density;
+
+        private bool m_hasStarted = false;
         public bool m_run = true;
         public Mesh m_sphereMesh;
         private FluidBody m_fluid;
@@ -44,8 +46,8 @@ namespace PBDFluid
         private FluidSolver m_solver;
         private RenderVolume m_volume;
         Bounds m_fluidSource;
-        List<Bounds> m_sources;
         private bool wasError;
+        private ParticlesFromSeveralBounds particleSource;
 
         private void StartDemo()
         {
@@ -80,15 +82,10 @@ namespace PBDFluid
             try
             {
                 m_boundaries = new List<FluidBoundary>();
-                m_sources = new List<Bounds>();
-                // CreateBoundary(radius, density, new Vector3(0,0,0), outerContainerSize);
-                //CreateBoundary(radius, density, new Vector3(0,0,0), outerContainerSize);
+
                 CreateBoundaries();
-                CreateFluid(radius, density, fluidBoxCenter, fluidBoxSize);
-                // foreach (BoundaryInfo boundaryInfo in boundaryInfos){
-                //     CreateBoundary(radius,density,boundaryInfo.center, boundaryInfo.size);
-                // }
-                //CreateBoundaryWall(radius,density,wallPos,wallSize);
+                CreateFluid(radius, density, fluidBounds.center, fluidBounds.size);
+
                 m_fluid.Bounds = m_boundaries[0].Bounds;
                 Assert.IsTrue(m_boundaries[0].Positions.IsValid());
                 m_solver = new FluidSolver(m_fluid, m_boundaries);
@@ -113,6 +110,10 @@ namespace PBDFluid
                 return;
             }
             if (m_run){
+                if (m_updateBoundaryPositions)
+                {
+                    m_boundaries[0].UpdatePositions();
+                }
                 m_solver.StepPhysics(timeStep);
                 m_volume.FillVolume(m_fluid, m_solver.Hash, m_solver.Kernel);
             }
@@ -148,8 +149,11 @@ namespace PBDFluid
 
             if (m_drawLines){                
                 //Outer Container Bounds
-                foreach (Bounds bounds in m_sources){
+                foreach (Bounds bounds in particleSource.BoundsList){
                     DrawBounds(camera, Color.green, bounds);
+                }
+                foreach (Bounds bounds in particleSource.Exclusion){
+                    DrawBounds(camera, Color.red, bounds);
                 }
 
                 DrawBounds(camera, Color.blue, m_fluidSource);
@@ -182,20 +186,14 @@ namespace PBDFluid
             innerBounds.SetMinMax(center-(size/2.0f), center+(size/2.0f));
             //The source will create a array of particles
             //evenly spaced between the inner and outer bounds.
-            m_sources.Add(innerBounds);
-            m_sources.Add(outerBounds);
             return (outerBounds, innerBounds);
         }
         private void CreateBoundaries()
         {
-            ParticlesFromSeveralBounds particleSource = new ParticlesFromSeveralBounds(radius * 2);
-            var (outerBounds, innerBounds) = CreateBoundary(outerContainer);
-            particleSource.AddBounds(outerBounds,innerBounds);
-            foreach (Bounds bounds in boundaryInfos)
-            {
-                (outerBounds, innerBounds) = CreateBoundary(bounds);
-                particleSource.AddBounds(outerBounds,innerBounds);
-            }
+            particleSource = new ParticlesFromSeveralBounds(radius * 2,radius*2,1,transform);
+            particleSource.AddBounds(outerContainer);
+            particleSource.AddBoundses(boundaryInfos);
+
             particleSource.CreateParticles();
             m_boundaries.Add(new FluidBoundary(particleSource,radius,density,transform.localToWorldMatrix));
         }
@@ -281,7 +279,7 @@ namespace PBDFluid
             
             //Water Box
             Gizmos.color = Color.blue;
-            Gizmos.DrawWireCube(transform.position+fluidBoxCenter,fluidBoxSize);
+            Gizmos.DrawWireCube(transform.position+fluidBounds.center,fluidBounds.size);
             Gizmos.color = Color.green;
             //Extra Boundaries
             foreach (Bounds bounds in boundaryInfos){

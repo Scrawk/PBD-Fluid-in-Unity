@@ -9,20 +9,74 @@ namespace PBDFluid
     public class ParticlesFromSeveralBounds : ParticleSource
     {
 
+        public List<Bounds> sources;
         public List<Bounds> BoundsList { get; private set; }
-
         public List<Bounds> Exclusion { get; private set; }
-
-        public ParticlesFromSeveralBounds(float spacing) : base(spacing)
+        private float diameter;
+        private float thickness;
+        private Transform demoTransform;
+        public ParticlesFromSeveralBounds(float spacing, float diameter, float thickness, Transform demoTransform) : base(spacing)
         {
+            this.thickness = thickness;
+            this.diameter = diameter;
+            this.demoTransform = demoTransform;
+            sources = new List<Bounds>();
             BoundsList = new List<Bounds>();
             Exclusion = new List<Bounds>();
         }
 
-        public void AddBounds(Bounds bounds, Bounds exclusion)
-        {  
-           BoundsList.Add(bounds);
-           Exclusion.Add(exclusion);
+        public (Bounds,Bounds) AddBoundary(Bounds bounds)
+        {
+            Bounds outerBounds = new Bounds();
+            var center = demoTransform.position + bounds.center;
+            var size = bounds.size;
+            outerBounds.SetMinMax(center-(size/2.0f), center+(size/2.0f));
+                
+            //Make the boundary 1 particle thick.
+            //The multiple by 1.2 adds a little of extra
+            //thickness in case the radius does not evenly
+            //divide into the bounds size. You might have
+            //particles missing from one side of the source
+            //bounds other wise.
+            size.x -= diameter * thickness * 1.2f;
+            size.y -= diameter * thickness * 1.2f;
+            size.z -= diameter * thickness * 1.2f;
+            Bounds innerBounds = new Bounds();
+            innerBounds.SetMinMax(center-(size/2.0f), center+(size/2.0f));
+            //The source will create a array of particles
+            //evenly spaced between the inner and outer bounds.
+            return (outerBounds, innerBounds);
+        }
+        public void AddBounds(Bounds bounds)
+        {
+            sources.Add(bounds);
+            var (outerBounds, innerBounds) = AddBoundary(bounds);
+            BoundsList.Add(outerBounds);
+            Exclusion.Add(innerBounds);
+        }
+
+        public void AddBoundses(List<Bounds> boundsList)
+        {
+            sources.AddRange(boundsList);
+            foreach (var source in sources)
+            {
+                var (outerBounds, innerBounds) = AddBoundary(source);
+                BoundsList.Add(outerBounds);
+                Exclusion.Add(innerBounds);
+            }
+        }
+
+        public override void UpdateBounds()
+        {
+            BoundsList.Clear();
+            Exclusion.Clear();
+            foreach (var source in sources)
+            {
+                var (outerBounds, innerBounds) = AddBoundary(source);
+                BoundsList.Add(outerBounds);
+                Exclusion.Add(innerBounds);
+            }
+            CreateParticles();
         }
 
         public override void CreateParticles()

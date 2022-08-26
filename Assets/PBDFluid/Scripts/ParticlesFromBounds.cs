@@ -65,6 +65,10 @@ namespace PBDFluid
 
         }
 
+        public override void UpdateBounds()
+        {
+            throw new NotImplementedException();
+        }
     }
 
 }

@@ -161,7 +161,7 @@ void ComputeDensityAndPressure(int id, float3 pi, out float density, out float p
 
 		float dist2;
 		float3 diff;
-		float psi;
+		float psi = 0.f;
 		if (n < NumParticles)
 		{
 			diff = pi - PredictedREAD[n].xyz;
@@ -264,7 +264,7 @@ float3 SolveDensity(int id, float3 pi, float pressure)
 
 		float dist2;
 		float3 diff;
-		float psi;
+		float psi = 0.f;
 		if (n < NumParticles)
 		{
 			diff = pi - PredictedREAD[n].xyz;
