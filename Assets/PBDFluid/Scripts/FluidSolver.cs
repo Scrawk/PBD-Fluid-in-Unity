@@ -17,6 +17,7 @@ namespace PBDFluid
         public int Groups { get; private set; }
 
         public List<FluidBoundary> Boundaries { get; private set; }
+        private ComputeBuffer _boundaryBuffer;
 
         public FluidBody Body { get; private set; }
 
@@ -30,16 +31,39 @@ namespace PBDFluid
 
         private ComputeShader m_shader;
 
-        public FluidSolver(FluidBody body, List<FluidBoundary> boundaries)
-        {
+        public FluidSolver(FluidBody body, List<FluidBoundary> boundaries) {
             SolverIterations = 2;
             ConstraintIterations = 2;
 
             Body = body;
             Boundaries = boundaries;
-
+            var totalBoundaryNumParticles = boundaries.Sum(boundary => boundary.NumParticles);
+            _boundaryBuffer = new ComputeBuffer(totalBoundaryNumParticles, 4 * sizeof(float));
+            
             float cellSize = Body.ParticleRadius * 4.0f;
             int total = Body.NumParticles + boundaries.Sum(t => t.NumParticles);
+            // Boundary at index 0 is the outer container
+            Hash = new GridHash(Boundaries[0].Bounds, total, cellSize);
+            Kernel = new SmoothingKernel(cellSize);
+
+            int numParticles = Body.NumParticles;
+            Groups = numParticles / THREADS;
+            if (numParticles % THREADS != 0) Groups++;
+
+            m_shader = Resources.Load("FluidSolver") as ComputeShader;
+        }
+        
+        public FluidSolver(FluidBody body, FluidBoundary boundaries) {
+            SolverIterations = 2;
+            ConstraintIterations = 2;
+
+            Body = body;
+            // _boundaryBuffer = new ComputeBuffer(boundaries.NumParticles, 4 * sizeof(float));
+            _boundaryBuffer = boundaries.Positions;
+
+            float cellSize = Body.ParticleRadius * 4.0f;
+            int total = Body.NumParticles + boundaries.NumParticles;
+            // Boundary at index 0 is the outer container
             Hash = new GridHash(Boundaries[0].Bounds, total, cellSize);
             Kernel = new SmoothingKernel(cellSize);
 
@@ -88,7 +112,8 @@ namespace PBDFluid
             for (int i = 0; i < SolverIterations; i++)
             {
                 PredictPositions(dt);
-                Hash.Process(Body.Predicted[READ], Boundaries[0].Positions);
+                Hash.Process(Body.Predicted[READ], Boundaries);
+
                 ConstrainPositions();
                 UpdateVelocities(dt);
                 SolveViscosity();

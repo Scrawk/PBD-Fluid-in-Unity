@@ -42,7 +42,6 @@ namespace PBDFluid
 
         public void UpdatePositions()
         {
-            source.UpdateBounds();
             NumParticles = source.NumParticles;
             CreateParticles();
             CreateBoundryPsi();

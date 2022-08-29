@@ -18,6 +18,8 @@ int Hash(float3 p)
 
 StructuredBuffer<float4> Particles;
 StructuredBuffer<float4> Boundary;
+StructuredBuffer<int> Particle2Boundary;
+StructuredBuffer<float4> BoundaryVectors;
 
 int NumParticles;
 int TotalParticles;
@@ -38,7 +40,8 @@ void HashParticles(int id : SV_DispatchThreadID)
 	else if (id < TotalParticles)
 	{
 		int k = id - NumParticles;
-		index.x = Hash(Boundary[k].xyz);
+		float4 boundaryVector = BoundaryVectors[Particle2Boundary[k]];
+		index.x = Hash(Boundary[k].xyz + boundaryVector.xyz);
 		IndexMap[id] = index;
 	}
 

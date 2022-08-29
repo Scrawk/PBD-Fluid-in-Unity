@@ -601,7 +601,7 @@ MonoBehaviour:
     m_Center: {x: 0, y: 3.47, z: 0}
     m_Extent: {x: 1, y: 1, z: 1}
   boundaryInfos:
-  - m_Center: {x: -1.85, y: -3.01, z: 0}
+  - m_Center: {x: -1.95, y: -3.01, z: 0}
     m_Extent: {x: 1.48, y: 1.9, z: 3}
   - m_Center: {x: 2.15, y: -0.82, z: 0}
     m_Extent: {x: 1.53, y: 1.99, z: 3}

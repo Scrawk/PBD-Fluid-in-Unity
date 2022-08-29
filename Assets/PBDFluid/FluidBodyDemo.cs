@@ -43,6 +43,7 @@ namespace PBDFluid
         public Mesh m_sphereMesh;
         private FluidBody m_fluid;
         private List<FluidBoundary> m_boundaries;
+        private FluidBoundary _boundary;
         private FluidSolver m_solver;
         private RenderVolume m_volume;
         Bounds m_fluidSource;
@@ -88,7 +89,8 @@ namespace PBDFluid
 
                 m_fluid.Bounds = m_boundaries[0].Bounds;
                 Assert.IsTrue(m_boundaries[0].Positions.IsValid());
-                m_solver = new FluidSolver(m_fluid, m_boundaries);
+                // m_solver = new FluidSolver(m_fluid, m_boundaries);
+                m_solver = new FluidSolver(m_fluid, _boundary);
 
                 m_volume = new RenderVolume(m_boundaries[0].Bounds, radius);
                 m_volume.CreateMesh(m_volumeMat);
@@ -149,12 +151,12 @@ namespace PBDFluid
 
             if (m_drawLines){                
                 //Outer Container Bounds
-                foreach (Bounds bounds in particleSource.BoundsList){
-                    DrawBounds(camera, Color.green, bounds);
-                }
-                foreach (Bounds bounds in particleSource.Exclusion){
-                    DrawBounds(camera, Color.red, bounds);
-                }
+                // foreach (Bounds bounds in particleSource.BoundsList){
+                //     DrawBounds(camera, Color.green, bounds);
+                // }
+                // foreach (Bounds bounds in particleSource.Exclusion){
+                //     DrawBounds(camera, Color.red, bounds);
+                // }
 
                 DrawBounds(camera, Color.blue, m_fluidSource);
             }
@@ -164,12 +166,13 @@ namespace PBDFluid
             }
         }
 
-        private (Bounds,Bounds) CreateBoundary(Bounds bounds)
+        private ParticlesFromBounds CreateBoundary(Bounds bounds)
         {
             Bounds outerBounds = new Bounds();
-            var center = transform.position + bounds.center;
+            // var center = transform.position + bounds.center;
             var size = bounds.size;
-            outerBounds.SetMinMax(center-(size/2.0f), center+(size/2.0f));
+            // outerBounds.SetMinMax(center-(size/2.0f), center+(size/2.0f));
+            outerBounds.SetMinMax(size/2.0f, size/2.0f);
                 
             //Make the boundary 1 particle thick.
             //The multiple by 1.2 adds a little of extra
@@ -183,19 +186,31 @@ namespace PBDFluid
             size.y -= diameter * thickness * 1.2f;
             size.z -= diameter * thickness * 1.2f;
             Bounds innerBounds = new Bounds();
-            innerBounds.SetMinMax(center-(size/2.0f), center+(size/2.0f));
+            // innerBounds.SetMinMax(center-(size/2.0f), center+(size/2.0f));
+            innerBounds.SetMinMax(size/2.0f, size/2.0f);
             //The source will create a array of particles
             //evenly spaced between the inner and outer bounds.
-            return (outerBounds, innerBounds);
+            return new ParticlesFromBounds(radius*2, outerBounds,innerBounds);
         }
-        private void CreateBoundaries()
-        {
-            particleSource = new ParticlesFromSeveralBounds(radius * 2,radius*2,1,transform);
-            particleSource.AddBounds(outerContainer);
-            particleSource.AddBoundses(boundaryInfos);
+        private void CreateBoundaries() {
+            ParticlesFromBounds[] particlesFromBoundsArray = new ParticlesFromBounds[boundaryInfos.Count];
+            Matrix4x4[] matrices = new Matrix4x4[boundaryInfos.Count];
+            for (var i = 0; i < boundaryInfos.Count; i++) {
+                particlesFromBoundsArray[i] = CreateBoundary(boundaryInfos[i]);
+                matrices[i] = Matrix4x4.Translate(boundaryInfos[i].center);
+            }
+
+            particleSource = new ParticlesFromSeveralBounds(radius * 2, particlesFromBoundsArray, matrices);
 
             particleSource.CreateParticles();
-            m_boundaries.Add(new FluidBoundary(particleSource,radius,density,transform.localToWorldMatrix));
+
+            // for (var index = 0; index < particleSource.particlesFromBoundsArray.Length; index++) {
+            //     var particlesFromBounds = particleSource.particlesFromBoundsArray[index];
+            //     var matrix = particleSource.boundTransformationMatrixArray[index];
+            //     m_boundaries.Add(new FluidBoundary(particlesFromBounds, radius, density, matrix));
+            // }
+            Debug.Log(particleSource.particlesFromBoundsArray[0].NumParticles);
+            _boundary = new FluidBoundary(particleSource, radius, density, transform.localToWorldMatrix);
         }
 
         private void CreateFluid( float radius, float density, Vector3 center, Vector3 size)

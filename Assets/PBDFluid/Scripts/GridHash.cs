@@ -129,7 +129,7 @@ namespace PBDFluid
             MapTable();
         }
 
-        public void Process(ComputeBuffer particles, ComputeBuffer boundary)
+        public void Process(ComputeBuffer particles, ComputeBuffer boundary, ComputeBuffer particle2Boundary, ComputeBuffer boundaryVectors)
         {
             int numParticles = particles.count;
             int numBoundary = boundary.count;
@@ -148,6 +148,8 @@ namespace PBDFluid
             m_shader.SetBuffer(m_hashKernel, "Particles", particles);
             m_shader.SetBuffer(m_hashKernel, "Boundary", boundary);
             m_shader.SetBuffer(m_hashKernel, "IndexMap", IndexMap);
+            m_shader.SetBuffer(m_hashKernel, "Particle2Boundary", particle2Boundary);
+            m_shader.SetBuffer(m_hashKernel, "BoundaryVectors", boundaryVectors);
 
             //Assign the particles hash to x and index to y.
             m_shader.Dispatch(m_hashKernel, Groups, 1, 1);
