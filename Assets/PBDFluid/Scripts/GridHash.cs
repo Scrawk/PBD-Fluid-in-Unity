@@ -157,34 +157,6 @@ namespace PBDFluid
             MapTable();
         }
 
-        public void Process(ComputeBuffer particles, List<FluidBoundary> boundaries)
-        {
-            for (int boundaryIdx=0; boundaryIdx<boundaries.Count; boundaryIdx++){
-                int numParticles = particles.count;
-                int numBoundary = boundaries[boundaryIdx].Positions.count;
-                int totalParticles = numBoundary + numParticles;
-                if (numParticles + numBoundary != totalParticles){
-                    Debug.Log(numParticles + " + " + numBoundary + " = " + (numParticles+numBoundary) +  " Should be: " + TotalParticles);
-                    throw new ArgumentException("numParticles + numBoundary != TotalParticles");
-                }
-
-                m_shader.SetInt("NumParticles", numParticles);
-                m_shader.SetInt("TotalParticles", totalParticles);
-                m_shader.SetFloat("HashScale", InvCellSize);
-                m_shader.SetVector("HashSize", Bounds.size);
-                m_shader.SetVector("HashTranslate", Bounds.min);
-
-                m_shader.SetBuffer(m_hashKernel, "Particles", particles);
-                m_shader.SetBuffer(m_hashKernel, "Boundary", boundaries[boundaryIdx].Positions);
-                m_shader.SetBuffer(m_hashKernel, "IndexMap", IndexMap);
-
-                //Assign the particles hash to x and index to y.
-                m_shader.Dispatch(m_hashKernel, Groups, 1, 1);
-
-                MapTable();
-            }
-        }
-
         private void MapTable()
         {
             //First sort by the hash values in x.
